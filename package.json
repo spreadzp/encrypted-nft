@@ -1,0 +1,37 @@
+{
+  "name": "nft-encrypt",
+  "version": "1.0.0",
+  "description": "Nft-encrypt allows  buyers to receive investments directly from customers. The investment is expressed in the form of a coupon, a 721 token, which can be sold and / or transferred according to the buyers choices.",
+  "main": "mint.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test",
+    "dev": "concurrently 'truffle develop' 'npm run populate' 'cd client && npm run start  && cd -'",
+    "populate": "wait-on http://localhost:3000/ && truffle migrate && truffle exec populate.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:spreadzp/encrypted-nft.git"
+  },
+  "keywords": [],
+  "author": "Spread",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/spreadzp/encrypted-nft/issues"
+  },
+  "homepage": "https://github.com/spreadzpencrypted-nft/Readme.md",
+  "devDependencies": {
+    "concurrently": "^5.2.0",
+    "truffle-assertions": "^0.9.2",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "wait-on": "^5.0.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^2.5.1",
+    "dotenv": "^8.2.0",
+    "install": "^0.13.0",
+    "npm": "^6.14.5"
+  }
+}
