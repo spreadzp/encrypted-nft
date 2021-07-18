@@ -25,31 +25,34 @@ const ListTrees = props => {
     let result = await contract.methods
       .tokensOfCategory("tree adoption")
       .call({ from: drizzleState.accounts[0] });
-    Promise.all(
-      result.map(async i => {
-        let coupon = await contract.methods
-          .getCouponInfo(i)
-          .call({ from: drizzleState.accounts[0] });
-        coupon.owner = await contract.methods
-          .ownerOf(i)
-          .call({ from: drizzleState.accounts[0] });
-        if (coupon.tradable) {
-          let merchant = await contract.methods
-            .getMerchantInfo(coupon.merchantAdr)
-            .call({ from: drizzleState.accounts[0] });
-          let uri = await contract.methods
-            .tokenURI(i)
-            .call({ from: drizzleState.accounts[0] });
-          let response = await fetch(uri);
-          let data = await response.json();
-          coupon.id = i;
-          coupon.data = data;
-          coupon.uri = uri;
-          coupon.merchantName = merchant.merchantName;
-          setCouponsDetails(couponDetails => [...couponDetails, coupon]);
-        }
-      })
-    )
+      if(result) {
+        Promise.all(
+          result.map(async i => {
+            let coupon = await contract.methods
+              .getCouponInfo(i)
+              .call({ from: drizzleState.accounts[0] });
+            coupon.owner = await contract.methods
+              .ownerOf(i)
+              .call({ from: drizzleState.accounts[0] });
+            if (coupon.tradable) {
+              let merchant = await contract.methods
+                .getMerchantInfo(coupon.merchantAdr)
+                .call({ from: drizzleState.accounts[0] });
+              let uri = await contract.methods
+                .tokenURI(i)
+                .call({ from: drizzleState.accounts[0] });
+              let response = await fetch(uri);
+              let data = await response.json();
+              coupon.id = i;
+              coupon.data = data;
+              coupon.uri = uri;
+              coupon.merchantName = merchant.merchantName;
+              setCouponsDetails(couponDetails => [...couponDetails, coupon]);
+            }
+          })
+        )
+      }
+  
 
   };
 

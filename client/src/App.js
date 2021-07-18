@@ -9,6 +9,8 @@ import ListRestaurants from "./ListRestaurants";
 import ListAssets from "./ListAssets";
 import AssetDetails from "./AssetDetails";
 import MerchantDetails from "./MerchantDetails";
+import SetDecrypt from "./SetDecrypt";
+import SetEncrypt from "./SetEncrypt";
 
 const App = props => {
   const [drizzleReadinessState, setDrizzleReadinessState] = useState({
@@ -144,6 +146,12 @@ const App = props => {
               <Link to="/setmerchant">Create Merchant</Link>
             </li>
             <li>
+              <Link to="/encrypt">Encrypt side</Link>
+            </li>
+            <li>
+              <Link to="/decrypt">Decrypt side</Link>
+            </li>
+            <li>
               <a
                 href="https://www.devoleum.com/#contacts"
                 target="_blank"
@@ -210,6 +218,18 @@ const App = props => {
           </Route>
           <Route path="/setmerchant">
             <SetMerchant
+              drizzle={drizzle}
+              drizzleState={drizzleReadinessState}
+            />
+          </Route>
+          <Route path="/encrypt">
+            <SetEncrypt
+              drizzle={drizzle}
+              drizzleState={drizzleReadinessState.drizzleState}
+            />
+          </Route>
+          <Route path="/decrypt">
+            <SetDecrypt
               drizzle={drizzle}
               drizzleState={drizzleReadinessState.drizzleState}
             />
