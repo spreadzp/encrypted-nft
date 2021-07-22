@@ -2,8 +2,8 @@ const Coupoken = artifacts.require("Coupoken");
 
 module.exports = async function(callback) {
   const coupoken = await Coupoken.deployed();
-  let user1 = "0xe96173fbe7fce6088c5f1bc0d36b0738b76c121b"
-  let user2 = "0xb7a3037ba4c305febbf149b4242d5c1f5e253192"
+  let user1 = "0x6a127a88b13ba193bb9554e8a210baa00c185a97"
+  let user2 = "0x54a7f61e5c200886729d8550e6b2033a0ed39643"
   await coupoken.createMerchant('Bob', 'Clothes', 'test.com', {from: user1})
   let merchantInfo = await coupoken.getMerchantInfo(user1, {from: user1});
   console.log("Create Merchant");
