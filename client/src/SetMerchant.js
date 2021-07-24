@@ -5,7 +5,7 @@ import UriBlock from "./components/UriBlock";
 const SetMerchant = props => {
   const [stackId, setStackID] = useState(null);
   const { drizzle, drizzleState } = props;
-  const { Coupoken } = drizzleState.contracts;
+  // const { Coupoken } = drizzleState.contracts;
 
   const { register, handleSubmit, watch, errors } = useForm();
   const onSubmit = data => {
@@ -30,18 +30,19 @@ const SetMerchant = props => {
   };
 
   const getTxStatus = () => {
-    // get the transaction states from the drizzle state
-    const { transactions, transactionStack } = drizzleState;
+    // // get the transaction states from the drizzle state
+    // const { transactions, transactionStack } = drizzleState;
 
-    // get the transaction hash using our saved `stackId`
-    const txHash = transactionStack[stackId];
+    // // get the transaction hash using our saved `stackId`
+    // const txHash = transactionStack[stackId];
 
-    // if transaction hash does not exist, don't display anything
-    if (!txHash) return null;
+    // // if transaction hash does not exist, don't display anything
+    // if (!txHash) return null;
 
-    // otherwise, return the transaction status
-    return `Transaction status: ${transactions[txHash] &&
-      transactions[txHash].status}`;
+    // // otherwise, return the transaction status
+    // return `Transaction status: ${transactions[txHash] &&
+    //   transactions[txHash].status}`;
+    return 'TX'
   };
 
   return (

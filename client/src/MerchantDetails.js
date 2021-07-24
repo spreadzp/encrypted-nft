@@ -42,7 +42,7 @@ const MerchantDetails = props => {
     if (!txHash) return null;
     getItem();
     // otherwise, return the transaction status
-    return `Transaction status: ${transactions[txHash] &&
+    return `Transaction status getTxStatus: ${transactions[txHash] &&
       transactions[txHash].status}`;
   };
 
