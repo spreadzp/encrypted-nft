@@ -2,15 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import UriBlock from "./components/UriBlock";
 import { decrypt } from "./cypher";
-import { decryptMessage } from "./metamask";
+import { decryptPrivateKey, decryptUriFile } from "./metamask";
 
 const SetDecrypt = props => {
 
-    const { drizzle, drizzleState, encData } = props;
+    const { drizzle, drizzleState, encData, encPrivateKey } = props;
     const [encryptedInfo, setEncryptedInfo] = useState('');
     const { Coupoken } = drizzleState.contracts;
+    const [decryptedPK, setDecryptedPK] = useState('');
     const [decryptedInfo, setDecryptedInfo] = useState('');
     const [decMessage, setDecryptMessage] = useState(false);
+    const [decPk, setDecPk] = useState(false);
     const { register, handleSubmit, watch, errors } = useForm();
 
     useEffect(() => {
@@ -18,19 +20,35 @@ const SetDecrypt = props => {
     }, [encData]);
 
     useEffect(() => {
-        if (decMessage) {
+        console.log('decPk :>> ', decPk);
+        console.log('encPrivateKey :>> ', encPrivateKey);
+        if (decPk) {
             async function getDecryptMessage() {
-                if (encryptedInfo !== '') {
-                    const dm = await decryptMessage(encryptedInfo, '0x4D1E260E63e9331C4552991874dA4FBF4Aa6A3df');
+                if (encPrivateKey !== '') {
+                    const dm = await decryptPrivateKey(encPrivateKey, '0x4D1E260E63e9331C4552991874dA4FBF4Aa6A3df');
                     console.log("🚀 ~ file: SetDecrypt.js ~ line 20 ~ decryptMessage ~ decMessage", dm)
-                    setDecryptedInfo(dm)
+                    setDecryptedPK(dm)
                 }
 
             }
             getDecryptMessage()
 
         }
-    }, [decMessage]);
+    }, [decPk, encPrivateKey]);
+
+    useEffect(() => {
+        console.log('decryptedPK && encData :>> ', decryptedPK, encData);
+        if (decryptedPK && encData) {
+            async function getDecryptMessage() { 
+                    const dm = await decryptUriFile(encData, decryptedPK);
+                    console.log("🚀 ~ file: SetDecrypt.js ~ line 20 ~ decryptMessage ~ decMessage", dm)
+                    setDecryptedInfo(dm) 
+
+            }
+            getDecryptMessage()
+
+        }
+    }, [decryptedPK, encData]);
 
     const onFileChange = (event) => {
         let file = event.target.files[0];
@@ -48,7 +66,7 @@ const SetDecrypt = props => {
 
     return (
         <section>
-            <h2>Decrypt Side</h2>
+            <h2>Download a file from IPFS</h2>
             <div>{encryptedInfo}</div>
             <div className="row">
                 <div className="six columns">
@@ -73,10 +91,14 @@ const SetDecrypt = props => {
                     {errors.fileToDecrypt && <span>Use a valid input</span>}
                 </div>
             </div>
-            <button onClick={() => setDecryptMessage(!decMessage)} >DECRYPT</button>
+            <button onClick={() => setDecPk(!decPk)} >DECRYPT PK</button>
+            <button onClick={() => setDecryptMessage(!decMessage)} >DECRYPT FILE</button>
 
+<h2>Decrypted PK</h2>
+<div>{decryptedPK}</div>
+<h2>Decrypted file info</h2>
+<div>{decryptedInfo}</div>
         </section>
     );
 };
-
 export default SetDecrypt;

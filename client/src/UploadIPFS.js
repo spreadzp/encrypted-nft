@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import UriBlock from "./components/UriBlock";
-import { encrypt, encryptData } from "./cypher";
+import { encrypt, encryptData, getAccount, getNewAccount } from "./cypher";
 import SetDecrypt from "./SetDecrypt";
 import { create } from 'ipfs-http-client'
 import all from 'it-all';
+import { metamaskEncrypt, metamaskEncryptData } from "./metamask";
 const client = create('https://ipfs.infura.io:5001/api/v0')
 
 const UploadIPFS = props => {
@@ -13,11 +14,16 @@ const UploadIPFS = props => {
     const [stackId, setStackID] = useState(null);
     const [clearData, setClearData] = useState('');
     const [encryptedData, setEncryptedData] = useState('');
+    const [encryptedPrivateKey, setEncryptedPrivateKey] = useState('');
     const [customerAddress, setCustomerAddress] = useState('');
     const { drizzle, drizzleState } = props;
     const { Coupoken } = drizzleState.contracts;
     const [cid, setCid] = useState('')
     const [textFromIpfsFIle, setTextFromIpfsFIle] = useState('')
+    const [newPrivateKey, setNewPrivateKey] = useState('')
+    const [newPublicKey, setNewPublicKey] = useState('')
+    const [newAddress, setNewAddress] = useState('')
+    const [creatorAddress, setCreatorAddress] = useState('')
 
     const { register, handleSubmit, watch, errors } = useForm();
     async function onChange(e) {
@@ -36,15 +42,29 @@ const UploadIPFS = props => {
         setValue(data);
     };
 
+    const encryptPrivateKeyForNFTFile = async () => {
+        
+        const encData = await encryptData(creatorAddress, newPrivateKey )
+        if (encData !== '') {
+            setEncryptedPrivateKey(encData)
+        }
+
+    };
+
+     
     const setValue = async value => {
         console.log('value.address-to-encrypt :>> ', value.addressToEncrypt, value.dataToEncrypt);
         setCustomerAddress(value.addressToEncrypt)
-        const encData = await encryptData(value.addressToEncrypt, value.dataToEncrypt || clearData || 'HELLO')
+        // const encData = await encryptData(value.addressToEncrypt, value.dataToEncrypt || clearData || 'HELLO')
+        // if (encData !== '') {
+        //     setEncryptedData(encData)
+        // }
+        console.log('newPublicKey :>> ', newPublicKey);
+
+        const encData = await metamaskEncryptData(value.dataToEncrypt, newPublicKey)
         if (encData !== '') {
             setEncryptedData(encData)
         }
-
-
     };
 
     const downloadToFile = (content, filename, contentType) => {
@@ -58,8 +78,16 @@ const UploadIPFS = props => {
         URL.revokeObjectURL(a.href);
     };
 
+    useEffect(async () => {
+        const address = await getAccount()
+        if(address) {
+            setCreatorAddress(address)
+        }
+        
+    }, [getAccount, setCreatorAddress ])
+
     useEffect(() => {
-        if (encryptedData && customerAddress) {
+        if (encryptedData && creatorAddress) {
             async function sendEncryptInfoToIPFS() {
                 // downloadToFile(encryptedData, `${customerAddress}.txt`, 'text/plain');
                 const added = await client.add(encryptedData)
@@ -72,7 +100,7 @@ const UploadIPFS = props => {
         }
 
 
-    }, [encryptedData, customerAddress])
+    }, [encryptedData, creatorAddress])
 
 
     const onFileChange = (event) => {
@@ -96,6 +124,12 @@ const UploadIPFS = props => {
         }
     }
 
+    const generateKeys = () => {
+        const newIdentity = getNewAccount()
+        setNewPrivateKey(newIdentity.privateKey)
+        setNewPublicKey(newIdentity.publicKey)
+        setNewAddress(newIdentity.address)
+    }
     const getTxStatus = () => {
         // get the transaction states from the drizzle state
         const { transactions, transactionStack } = drizzleState;
@@ -114,9 +148,23 @@ const UploadIPFS = props => {
         <div className="App">
             <h1>IPFS Example</h1>
             <section>
-                <h2>Encrypt Side</h2>
+                <h2>Encryption private key via owner public key</h2>
+
+                <button onClick={()=>generateKeys()}>Generate keys for encryption a file</button>
+                <div>Private, public, address</div>
+                <div>pk: {newPrivateKey}</div>
+                <div>pubkey: {newPublicKey}</div>
+                <div>add: {newAddress}</div>
+                <div>Creator address{creatorAddress}</div>
+
+                <button onClick={()=>encryptPrivateKeyForNFTFile()}>Encrypt private key via new owner public key</button>
+                <div>Encrypted private key</div>
+                <div>{encryptedPrivateKey}</div>
+                <br></br>
+<h2>Encrypt a file via generated public key for NFT URI </h2>
+
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="row">
+                    {/* <div className="row">
                         <div className="u-full-width">
                             <label htmlFor="mURI">Public for encryption</label>
                             <input
@@ -127,7 +175,7 @@ const UploadIPFS = props => {
                             />
                             {errors.addressToEncrypt && <span>Use a valid input</span>}
                         </div>
-                    </div>
+                    </div> */}
                     <div className="row">
                         <div className="u-full-width">
                             <label htmlFor="mURI">Data for encryption</label>
@@ -160,7 +208,8 @@ const UploadIPFS = props => {
                 <SetDecrypt
                     drizzle={drizzle}
                     drizzleState={drizzleState}
-                    encData={textFromIpfsFIle}
+                    encData={encryptedData}
+                    encPrivateKey={encryptedPrivateKey}
                 />
             </section>
             <input

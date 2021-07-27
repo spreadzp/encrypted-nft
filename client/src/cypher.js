@@ -5,7 +5,6 @@
 import EthCrypto from 'eth-crypto';
 import { metamaskEncrypt, metamaskPublic } from './metamask';
 
-// Get a wallet instance from a private key
 
 var Web3 = require('web3');
 var web3 = new Web3('http://127.0.0.1:9545');
@@ -13,6 +12,11 @@ var web3 = new Web3('http://127.0.0.1:9545');
 export async function getAccount() {
     return await window.ethereum.selectedAddress
 }
+
+export function getNewAccount() {
+    return EthCrypto.createIdentity();
+}
+
 
 export async function encryptData(publicKey, data) {
     const pk = await metamaskPublic(publicKey)

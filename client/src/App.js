@@ -13,6 +13,7 @@ import SetDecrypt from "./SetDecrypt";
 import SetEncrypt from "./SetEncrypt";
 import UploadIPFS from "./UploadIPFS";
 import DownloadIPFS from "./DownloadIPFS";
+import MarketPlace from "./MarketPlace";
 
 const App = props => {
   const [drizzleReadinessState, setDrizzleReadinessState] = useState({
@@ -136,6 +137,9 @@ const App = props => {
               <Link to="/">List trees</Link>
             </li>
             <li>
+              <Link to="/marketplace">Market Place</Link>
+            </li>
+            <li>
               <Link to="/category/Restaurant">List Restaurants</Link>
             </li>
             <li>
@@ -176,6 +180,12 @@ const App = props => {
         <Switch>
           <Route exact path="/">
             <ListTrees
+              drizzle={drizzle}
+              drizzleState={drizzleReadinessState.drizzleState}
+            />
+          </Route>
+          <Route exact path="/marketplace">
+            <MarketPlace
               drizzle={drizzle}
               drizzleState={drizzleReadinessState.drizzleState}
             />

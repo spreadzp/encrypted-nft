@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import UriBlock from "./components/UriBlock";
 import { decrypt } from "./cypher";
-import { decryptMessage } from "./metamask";
+import {  decryptPrivateKey, decryptUriFile } from "./metamask";
 
 const DownloadIPFS = props => {
 
     const { drizzle, drizzleState, encData } = props;
     const [encryptedInfo, setEncryptedInfo] = useState('');
     const { Coupoken } = drizzleState.contracts;
+    const [decryptedPK, setDecryptedPK] = useState('');
     const [decryptedInfo, setDecryptedInfo] = useState('');
     const [decMessage, setDecryptMessage] = useState(false);
     const { register, handleSubmit, watch, errors } = useForm();
@@ -21,7 +22,22 @@ const DownloadIPFS = props => {
         if (decMessage) {
             async function getDecryptMessage() {
                 if (encryptedInfo !== '') {
-                    const dm = await decryptMessage(encryptedInfo, '0x4D1E260E63e9331C4552991874dA4FBF4Aa6A3df');
+                    const dm = await decryptPrivateKey(encryptedInfo, '0x4D1E260E63e9331C4552991874dA4FBF4Aa6A3df');
+                    console.log("🚀 ~ file: SetDecrypt.js ~ line 20 ~ decryptMessage ~ decMessage", dm)
+                    setDecryptedPK(dm)
+                }
+
+            }
+            getDecryptMessage()
+
+        }
+    }, [decMessage]);
+
+    useEffect(() => {
+        if (decryptedInfo) {
+            async function getDecryptMessage() {
+                if (encryptedInfo !== '') {
+                    const dm = await decryptUriFile(encryptedInfo, '0x4D1E260E63e9331C4552991874dA4FBF4Aa6A3df');
                     console.log("🚀 ~ file: SetDecrypt.js ~ line 20 ~ decryptMessage ~ decMessage", dm)
                     setDecryptedInfo(dm)
                 }
@@ -30,7 +46,7 @@ const DownloadIPFS = props => {
             getDecryptMessage()
 
         }
-    }, [decMessage]);
+    }, [decMessage, decryptedInfo]);
 
     const onFileChange = (event) => {
         let file = event.target.files[0];
@@ -75,6 +91,10 @@ const DownloadIPFS = props => {
             </div>
             <button onClick={() => setDecryptMessage(!decMessage)} >DECRYPT</button>
 
+<h2>Decrypted PK</h2>
+<div>{decryptedPK}</div>
+<h2>Decrypted file info</h2>
+<div>{decryptedInfo}</div>
         </section>
     );
 };
