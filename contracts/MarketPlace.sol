@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-
 contract Context {
     // Empty internal constructor, to prevent people from mistakenly deploying
     // an instance of this contract, which should be used via inheritance.
@@ -1571,7 +1570,7 @@ contract Example is ERC721, Ownable {
         address _to,
         uint256 _tokenId,
         bytes memory _data
-    ) external {
+    ) public {
         require(
             ownerOf(_tokenId) == msg.sender,
             "Transfer can only the owner of the token"
@@ -1593,4 +1592,118 @@ contract Example is ERC721, Ownable {
         ];
         return (lastOwnerInfo.currentOwner, lastOwnerInfo.encryptKeyForOwner);
     }
+}
+
+
+contract MarketPlace is Ownable {
+    using SafeMath for uint256;
+    using Address for address;
+    address public ownwerContract;
+    Example nftExample = Example(
+        0x8583360814F7DBD94EdC25cf48Aa782B7e474A42
+        );
+    struct BuyerData {
+        address buyerAddress;
+        bytes32 buyerPublicKey;
+        uint256 buyerBet;
+    }
+    
+    struct SellerData {
+        address sellerAddress;
+        uint256 deadline;
+        uint256 sellerSum;
+    }
+    mapping(uint256 => BuyerData[]) public buyersBoard; // to do private
+    mapping(uint256 => SellerData[]) public sellersBoard; // to do private
+    
+    event NewOwner(uint256 idToken, address buyerAddress);
+    event TokenForSell(uint256 idToken, address buyerAddress, string message);
+    event BuyerMadeBet(uint256 idToken, address buyerAddress, uint256 bet);
+    
+    constructor ()  { 
+        ownwerContract = msg.sender;
+    }
+    
+    function makeBet(uint256 idToken, bytes32 buyerPublicKey, address buyerAddress) public payable {
+        require(msg.value > 0, "Rate must be more 0");
+         uint256 buyerIndex = getBuyerIndex(idToken, buyerAddress);
+         if(buyersBoard[idToken][buyerIndex].buyerAddress == buyerAddress) {
+              buyersBoard[idToken][buyerIndex].buyerBet =  buyersBoard[idToken][buyerIndex].buyerBet.add(msg.value);
+         } else {
+             buyersBoard[idToken].push(BuyerData({buyerAddress: buyerAddress, buyerPublicKey: buyerPublicKey, buyerBet: msg.value}));
+         }
+         
+        
+        emit BuyerMadeBet(idToken, buyerAddress, msg.value);
+    }
+    
+    function getSellerById(uint256 idToken) public view returns(SellerData[] memory){
+        SellerData[] storage sellers = sellersBoard[idToken];
+        return  sellers;
+    }
+    
+    function getBuyersrById(uint256 idToken) public view  returns(BuyerData[] memory){
+        BuyerData[] storage buyers = buyersBoard[idToken];
+        return  buyers;
+    }
+    
+    function buyerWithdrawBet(uint256 idToken) public {
+        uint256 buyerIndex = getBuyerIndex(idToken, msg.sender);
+        (bool succeed, bytes memory data) = msg.sender.call{value: buyersBoard[idToken][buyerIndex].buyerBet}("");
+        require(succeed, "Failed to withdraw Ether");
+    }
+    
+    function sellerWithdrawSum(uint256 idToken) public {
+        uint256 sellerIndex = getSellerIndex(idToken, msg.sender);
+        (bool succeed, bytes memory data) = msg.sender.call{value: sellersBoard[idToken][sellerIndex].sellerSum}("");
+        require(succeed, "Failed to withdraw Ether");
+    }
+    
+    function acceptRateAndTransferToken(uint256 idToken, address buyerAddress,  bytes memory data) public {
+        uint256 buyerIndex = getBuyerIndex(idToken, buyerAddress);
+        uint256 sellerIndex = getSellerIndex(idToken, msg.sender);
+        nftExample.transferTokenWithEncryption(buyerAddress, idToken, data);
+        address currentOwner = nftExample.ownerOf(idToken);
+        require(currentOwner == buyerAddress, "The address has not own the token");
+        sellersBoard[idToken][sellerIndex].sellerSum = sellersBoard[idToken][sellerIndex].sellerSum.add(buyersBoard[idToken][buyerIndex].buyerBet);
+        buyersBoard[idToken][buyerIndex].buyerBet = 0;
+        sellersBoard[idToken].push(SellerData({sellerAddress: buyerAddress, deadline: block.timestamp.add(10**6), sellerSum: 0}));
+        emit NewOwner( idToken, buyerAddress);
+        
+    }
+    
+    function getBuyerIndex(uint256 idToken, address buyerAddress) public view returns(uint256 buyerIndex){
+        uint256 length = buyersBoard[idToken].length;
+        
+        for(uint256 index; index < length; index++) {
+            if(buyersBoard[idToken][index].buyerAddress == buyerAddress) {
+                buyerIndex = index;
+            }
+        }
+        return buyerIndex;
+    }
+    
+     function getSellerIndex(uint256 idToken, address sellerAddress) public view returns(uint256 sellerIndex){
+        uint256 length = sellersBoard[idToken].length;
+        
+        for(uint256 index; index < length; index++) {
+            if(sellersBoard[idToken][index].sellerAddress == sellerAddress) {
+                sellerIndex = index;
+            }
+        }
+        return sellerIndex;
+    }
+    
+    function moveTokenForSell(uint256 idToken, string memory message) public {
+        address currentOwner = nftExample.ownerOf(idToken);
+        require(currentOwner == msg.sender, "The address has not own the token");
+        sellersBoard[idToken].push(SellerData({sellerAddress: msg.sender, deadline: block.timestamp.add(10**6), sellerSum: 0}));
+        emit TokenForSell(idToken, msg.sender, message);
+    }
+    
+    function removeTokenFromMarketPlace(uint256 idToken, string memory message) public {
+        // to do for burn case
+        emit TokenForSell(idToken, msg.sender, message);
+    }
+    
 }

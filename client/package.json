@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
+  "dependencies": {    
     "date-fns": "^2.14.0",
     "drizzle": "^1.4.0",
     "enzyme": "^3.10.0",
@@ -37,6 +37,7 @@
     ]
   },
   "devDependencies": {
+    "@openzeppelin/contracts": "^4.2.0",
     "openzeppelin-solidity": "^3.0.1",
     "react-hook-form": "^5.7.2"
   }

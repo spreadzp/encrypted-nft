@@ -1,9 +1,5 @@
-// const ecies = require("eth-ecies");
-// var Wallet = require('ethereumjs-wallet');
-// import { EthUtil } from 'ethereumjs-util'
-// import { EthTx } from 'ethereumjs-tx'
 import EthCrypto from 'eth-crypto';
-import { metamaskEncrypt, metamaskPublic } from './metamask';
+import { metamaskEncrypt, getPublicKeyViaMetamask } from './metamask';
 
 
 var Web3 = require('web3');
@@ -19,7 +15,7 @@ export function getNewAccount() {
 
 
 export async function encryptData(publicKey, data) {
-    const pk = await metamaskPublic(publicKey)
+    const pk = await getPublicKeyViaMetamask(publicKey)
     console.log("🚀 ~ file: cypher.js ~ line 19 ~ encrypt ~ pk", pk)
     return await metamaskEncrypt(data, pk)
 }

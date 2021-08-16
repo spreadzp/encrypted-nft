@@ -1,7 +1,7 @@
 import { encrypt } from 'eth-sig-util'
 import web3 from 'web3'
 var EthCrypto = require('eth-crypto');
-export async function metamaskPublic(address) {
+export async function getPublicKeyViaMetamask(address) {
     return new Promise((resolve, reject) => {
         window.ethereum.sendAsync(
             {
@@ -28,9 +28,9 @@ export async function metamaskEncryptData(message, pubKey) {
         message // message
     );
     console.log("🚀 ~ file: metamask.js ~ line 30 ~ metamaskEncrypt ~ encrypted", encrypted)
-    
+
     const encryptedMessage = EthCrypto.cipher.stringify(
-            encrypted 
+        encrypted
     )
     // const enc = await ethcrypto.encryptWithPublicKey(pubKey, message)
     // console.log("🚀 ~ file: metamask.js ~ line 36 ~ metamaskEncrypt ~ enc", enc)
@@ -39,8 +39,8 @@ export async function metamaskEncryptData(message, pubKey) {
 }
 export async function metamaskEncrypt(message, pubKey) {
     console.log(message)
-    
-    const enc =  encrypt(
+
+    const enc = encrypt(
         pubKey,
         { data: message },
         'x25519-xsalsa20-poly1305'
@@ -48,9 +48,10 @@ export async function metamaskEncrypt(message, pubKey) {
     console.log("🚀 ~ file: metamask.js ~ line 31 ~ metamaskEncrypt ~ enc", enc)
     const encryptedMessage = web3.utils.toHex(
         JSON.stringify(
-            enc 
+            enc
         )
     )
+    console.log("🚀 ~ file: metamask.js ~ line 54 ~ metamaskEncrypt ~ encryptedMessage", encryptedMessage)
     // const enc = await ethcrypto.encryptWithPublicKey(pubKey, message)
     // console.log("🚀 ~ file: metamask.js ~ line 36 ~ metamaskEncrypt ~ enc", enc)
     // const encryptedMessage = ethcrypto.cipher.stringify(enc);
@@ -64,7 +65,7 @@ var handle = (promise) => {
 }
 
 export async function decryptPrivateKey(encryptedMessage, account) {
-    console.log(`encryptedMessage: ${encryptedMessage}`)  
+    console.log(`encryptedMessage: ${encryptedMessage}`)
     const [decryptedMessage, decryptErr] = await handle(window.ethereum.request({
         method: 'eth_decrypt',
         params: [encryptedMessage, account],

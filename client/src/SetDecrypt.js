@@ -25,7 +25,7 @@ const SetDecrypt = props => {
         if (decPk) {
             async function getDecryptMessage() {
                 if (encPrivateKey !== '') {
-                    const dm = await decryptPrivateKey(encPrivateKey, '0x4D1E260E63e9331C4552991874dA4FBF4Aa6A3df');
+                    const dm = await decryptPrivateKey(encPrivateKey, drizzleState.accounts[0]);
                     console.log("🚀 ~ file: SetDecrypt.js ~ line 20 ~ decryptMessage ~ decMessage", dm)
                     setDecryptedPK(dm)
                 }

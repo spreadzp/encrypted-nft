@@ -2,86 +2,79 @@ import React, { useState, useEffect } from "react";
 import TokenCard from "./components/TokenCard";
 import { Link } from "react-router-dom";
 import * as _ from "lodash";
+import TransferNFT from "./TransferNFT";
+import BuyersBoard from "./BuyersBoard";
 
 const MarketPlace = props => {
   const [dataKey, setDataKey] = useState(null);
-  const [couponDetails, setCouponsDetails] = useState([]);
+  const [totalAmountNft, setTotalAmountNft] = useState(0);
+  const [nftOwnersDetails, setNftOwnersDetails] = useState([]);
   const { drizzle, drizzleState } = props;
-  const { Coupoken } = drizzleState.contracts;
-
+  const contract = drizzle.contracts.EncNft;
+  const contractMarket = drizzle.contracts.MarketPlace;
   useEffect(() => {
     getCoupons();
   }, []);
 
   const toggleLock = async (_id, _tradable) => {
-    const contract = await drizzle.contracts.Coupoken;
-    await contract.methods.toggleLockCoupon.cacheSend(_id, !_tradable, {
-      from: drizzleState.accounts[0]
-    });
+    // const contract = await drizzle.contracts.Coupoken;
+    // await contract.methods.toggleLockCoupon.cacheSend(_id, !_tradable, {
+    //   from: drizzleState.accounts[0]
+    // });
   };
 
+  const transferNFT = async (owner) => {
+    let result = await contractMarket.methods.moveTokenForSell(owner.idNft,`Advertise of token ${owner.idNft}`).send({ from: drizzleState.accounts[0],      
+      gasLimit: 150000})
+    console.log("🚀 ~ file: MarketPlace.js ~ line 30 ~ transferNFT ~ result", result)
+      
+
+  }
   const getCoupons = async () => {
-    const contract = await drizzle.contracts.Coupoken;
     let result = await contract.methods
-      .tokensOfCategory("tree adoption")
+      .totalSupply()
       .call({ from: drizzleState.accounts[0] });
-      if(result) {
-        Promise.all(
-          result.map(async i => {
-            let coupon = await contract.methods
-              .getCouponInfo(i)
-              .call({ from: drizzleState.accounts[0] });
-            coupon.owner = await contract.methods
-              .ownerOf(i)
-              .call({ from: drizzleState.accounts[0] });
-            if (coupon.tradable) {
-              let merchant = await contract.methods
-                .getMerchantInfo(coupon.merchantAdr)
-                .call({ from: drizzleState.accounts[0] });
-              let uri = await contract.methods
-                .tokenURI(i)
-                .call({ from: drizzleState.accounts[0] });
-              let response = await fetch(uri);
-              let data = await response.json();
-              coupon.id = i;
-              coupon.data = data;
-              coupon.uri = uri;
-              coupon.merchantName = merchant.merchantName;
-              setCouponsDetails(couponDetails => [...couponDetails, coupon]);
-            }
-          })
-        )
+    if (result > 0) {
+      setTotalAmountNft(result)
+      const ownersArray = []
+      for (let index = 1; index <= result; index++) {
+        ownersArray.push({ idNft: index, owner: '' })
       }
-  
+      ownersArray.map(async owner => {
+        const ownerAddress = await contract.methods.ownerOf(owner.idNft).call({ from: drizzleState.accounts[0] });
+        if (ownerAddress) {
+          owner.owner = ownerAddress
+          console.log("🚀 ~ file: MarketPlace.js ~ line 34 ~ getCoupons ~ ownerAddress", ownerAddress)
+
+          setNftOwnersDetails(nftOwnersDetails => [...nftOwnersDetails, owner])
+          console.log('# ###nftOwnersDetails :>> ', nftOwnersDetails);
+        }
+      })
+    }
 
   };
 
-  const buyCoupon = async (_id, _price) => {
-    const contract = await drizzle.contracts.Coupoken;
-    const stackId = contract.methods["buyCoupon"].cacheSend(_id, {
-      from: drizzleState.accounts[0],
-      value: parseInt(_price)
-    });
-  };
+  useEffect(() => {
+    console.log('totalAmountNft  :>> ', totalAmountNft);
+    console.log('nftOwnersDetails.length :>> ', nftOwnersDetails.length);
+    console.log('nftOwnersDetails.length === totalAmountNft :>> ', nftOwnersDetails.length === totalAmountNft);
+    if (nftOwnersDetails.length == totalAmountNft) {
+      console.log(' @@@@totalAmountNft  :>> ', totalAmountNft);
+    }
+  }, [nftOwnersDetails.length])
 
 
   return (
     // if it exists, then we display its value
     <section>
       <h2>MarketPlace</h2>
-      {couponDetails && (
-        <div className="token_container">
-          {_.orderBy(couponDetails, "createdAt", "desc").map(item => (
-            <TokenCard
-              key={item.id}
-              item={item}
-              account={drizzleState.accounts[0]}
-              handleBuy={() => buyCoupon(item.id, item.price)}
-              handleLock={() => toggleLock(item.id, item.tradable)}
-            />
-          ))}
-        </div>
-      )}
+      {nftOwnersDetails.length == totalAmountNft ? nftOwnersDetails.map(owner =>
+        <div><span>{owner.idNft}: {owner.owner} {drizzleState.accounts[0] === owner.owner && <button onClick={() => transferNFT(owner)}>Move NFT for sell place</button>}</span></div>
+      ) : <> </>}
+      <BuyersBoard
+        drizzle={drizzle}
+        drizzleState={drizzleState}
+      />
     </section>
   );
 };

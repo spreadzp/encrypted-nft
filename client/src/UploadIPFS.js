@@ -4,12 +4,13 @@ import UriBlock from "./components/UriBlock";
 import { encrypt, encryptData, getAccount, getNewAccount } from "./cypher";
 import SetDecrypt from "./SetDecrypt";
 import { create } from 'ipfs-http-client'
-import all from 'it-all';
 import { metamaskEncrypt, metamaskEncryptData } from "./metamask";
+import MintNFT from "./MintNFT";
+import TransferNFT from "./TransferNFT";
 const client = create('https://ipfs.infura.io:5001/api/v0')
 
-const UploadIPFS = props => {
 
+const UploadIPFS = props => {
     const [fileUrl, updateFileUrl] = useState(``)
     const [stackId, setStackID] = useState(null);
     const [clearData, setClearData] = useState('');
@@ -17,7 +18,6 @@ const UploadIPFS = props => {
     const [encryptedPrivateKey, setEncryptedPrivateKey] = useState('');
     const [customerAddress, setCustomerAddress] = useState('');
     const { drizzle, drizzleState } = props;
-    const { Coupoken } = drizzleState.contracts;
     const [cid, setCid] = useState('')
     const [textFromIpfsFIle, setTextFromIpfsFIle] = useState('')
     const [newPrivateKey, setNewPrivateKey] = useState('')
@@ -42,6 +42,12 @@ const UploadIPFS = props => {
         setValue(data);
     };
 
+    // const onSubmitMint = async (data) => {
+    //     console.log('data :>> ', data);
+        
+
+    // }
+
     const encryptPrivateKeyForNFTFile = async () => {
         
         const encData = await encryptData(creatorAddress, newPrivateKey )
@@ -51,7 +57,6 @@ const UploadIPFS = props => {
 
     };
 
-     
     const setValue = async value => {
         console.log('value.address-to-encrypt :>> ', value.addressToEncrypt, value.dataToEncrypt);
         setCustomerAddress(value.addressToEncrypt)
@@ -60,8 +65,9 @@ const UploadIPFS = props => {
         //     setEncryptedData(encData)
         // }
         console.log('newPublicKey :>> ', newPublicKey);
+        console.log('clearData :>> ', clearData);
 
-        const encData = await metamaskEncryptData(value.dataToEncrypt, newPublicKey)
+        const encData = await metamaskEncryptData(value.dataToEncrypt || clearData, newPublicKey)
         if (encData !== '') {
             setEncryptedData(encData)
         }
@@ -164,18 +170,6 @@ const UploadIPFS = props => {
 <h2>Encrypt a file via generated public key for NFT URI </h2>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    {/* <div className="row">
-                        <div className="u-full-width">
-                            <label htmlFor="mURI">Public for encryption</label>
-                            <input
-                                name="addressToEncrypt"
-                                className="u-full-width"
-                                placeholder="0x4D1E260E63e9331C4552991874dA4FBF4Aa6A3df"
-                                ref={register({ required: true, maxLength: 42 })}
-                            />
-                            {errors.addressToEncrypt && <span>Use a valid input</span>}
-                        </div>
-                    </div> */}
                     <div className="row">
                         <div className="u-full-width">
                             <label htmlFor="mURI">Data for encryption</label>
@@ -202,9 +196,11 @@ const UploadIPFS = props => {
                     </div>
                     <input className="button-primary" type="submit" value="Submit" />
                 </form>
-                <div>{getTxStatus()}</div>
+               {/*  <div>{getTxStatus()}</div> */}
                 {/* <UriBlock /> */}
                 <div>{encryptedData}</div>
+
+               
                 <SetDecrypt
                     drizzle={drizzle}
                     drizzleState={drizzleState}
@@ -219,6 +215,13 @@ const UploadIPFS = props => {
             <a href={fileUrl}>{fileUrl}</a>
             <button onClick={() => getInfoFromIPFS()}>Get Info from IPFS</button>
             <div>{textFromIpfsFIle}</div>
+            <MintNFT 
+            drizzle={drizzle}
+            drizzleState={drizzleState}
+            ipfsLink={fileUrl}
+            encryptedKey={encryptedPrivateKey}
+            />
+            
         </div>
     );
 };
