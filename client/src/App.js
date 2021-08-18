@@ -14,6 +14,7 @@ import SetEncrypt from "./SetEncrypt";
 import UploadIPFS from "./UploadIPFS";
 import DownloadIPFS from "./DownloadIPFS";
 import MarketPlace from "./MarketPlace";
+import OwnerAssets from "./OwnerAssets";
 
 const App = props => {
   const [drizzleReadinessState, setDrizzleReadinessState] = useState({
@@ -58,14 +59,14 @@ const App = props => {
         </a>
       </h4>
       Set it on the rinkeby test network
-      <div>
+      {/* <div>
         <img
           style={imgStyle}
           src={
             "https://images.unsplash.com/photo-1563551937069-caa966ba3aa8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=701&q=80"
           }
         />
-      </div>
+      </div> */}
       <div>Photo by Lachlan Gowen on Unsplash</div>
     </div>
   ) : (
@@ -79,7 +80,7 @@ const App = props => {
           />
           <h1>Devoleum - Coupoken</h1>
         </div>
-        <div>
+        {/* <div>
           <a
             href="https://www.devoleum.com"
             target="_blank"
@@ -118,30 +119,31 @@ const App = props => {
           adoption of fruit trees. Through the integration of oracles, it will
           also be possible to manage logics external to the blockchain,
           especially thanks to open banking.
-        </div>
+        </div> */}
         <br />
-        <div>
+        {/* <div>
           Coupoken allows merchants to receive investments directly from
           customers. The investment is expressed in the form of a coupon, a 721
           token, which can be sold and / or transferred according to the
           merchant's choices. There is the possibility of selling them using the
           cryptocurrencies, or using oracles and adjusting the transfers
           according to more complex logics external to the ethereum blockchain.
-        </div>
+        </div> */}
         <br />
         <br />
 
         <nav className="menu">
           <ul>
-            <li>
+            {/* <li>
               <Link to="/">List trees</Link>
-            </li>
+            </li> */}
             <li>
               <Link to="/marketplace">Market Place</Link>
             </li>
             <li>
-              <Link to="/category/Restaurant">List Restaurants</Link>
+              <Link to="/assets">Owner Assets</Link>
             </li>
+            {/*
             <li>
               <Link to="/myassets">Your Assets</Link>
             </li>
@@ -156,14 +158,14 @@ const App = props => {
             </li>
             <li>
               <Link to="/decrypt">Decrypt side</Link>
-            </li>
+            </li> */}
             <li>
               <Link to="/upload-ipfs">Upload a file to IPFS</Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/download-ipfs">Download a file to IPFS</Link>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <a
                 href="https://www.devoleum.com/#contacts"
                 target="_blank"
@@ -171,7 +173,7 @@ const App = props => {
               >
                 Contact us
               </a>
-            </li>
+            </li> */}
           </ul>
         </nav>
 
@@ -190,12 +192,14 @@ const App = props => {
               drizzleState={drizzleReadinessState.drizzleState}
             />
           </Route>
-          <Route exact path="/category/:category">
-            <ListRestaurants
+          <Route exact path="/assets">
+            <OwnerAssets
               drizzle={drizzle}
               drizzleState={drizzleReadinessState.drizzleState}
             />
-          </Route>
+            </Route>
+          {/* 
+          
           <Route exact path="/myassets">
             <ListAssets
               drizzle={drizzle}
@@ -251,7 +255,7 @@ const App = props => {
               drizzle={drizzle}
               drizzleState={drizzleReadinessState.drizzleState}
             />
-          </Route>
+          </Route> */}
           <Route path="/upload-ipfs">
             <UploadIPFS
               drizzle={drizzle}

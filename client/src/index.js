@@ -16,11 +16,11 @@ const options = {
   contracts: [
     {
       contractName: 'EncNft',
-      web3Contract: new web3.eth.Contract(EncNft.abi, '0x017B48535979B015687B26E37c9361145CB19147') 
+      web3Contract: new web3.eth.Contract(EncNft.abi, '0x8C151518F690a51aC559eB2eA5A4A6e7AFA75F82') 
     },
     {
       contractName: 'MarketPlace',
-      web3Contract: new web3.eth.Contract(MarketPlace.abi, '0xFDDFbd6102F67b4C424254383e228b7CdF968F98') 
+      web3Contract: new web3.eth.Contract(MarketPlace.abi, '0xD91f649c4301F9840D2442D3D412C8c014CB0F2A') 
     },
     {
       contractName: 'Coupoken',

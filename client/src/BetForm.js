@@ -23,7 +23,7 @@ const BetForm = props => {
         const bnValue  = BigNumber.from(utils.parseUnits(data.valueBet, 18))
         console.log("🚀 ~ file: BetForm.js ~ line 24 ~ onSubmit ~ bnValue", bnValue)
         // console.log("🚀 ~ file: MintNFT.js ~ line 19 ~ onSubmit ~ stringUri", stringUri)
-        const resMint = await contract.methods.makeBet(idToken, pk, drizzleState.accounts[0]).send({ from: drizzleState.accounts[0], 
+        const resMint = await contract.methods.makeBet(idToken, pk, drizzleState.accounts[0], data.goalPurchase).send({ from: drizzleState.accounts[0], 
             value: bnValue, gasPrice: 10 * 10 ** 10,
             gasLimit: 400000})
         if (resMint) {
@@ -122,6 +122,17 @@ const BetForm = props => {
                             ref={register({ required: true, maxLength: 82 })}
                         />
                         {errors.valueBet && <span>Use a valid input</span>}
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="u-full-width">
+                        <label htmlFor="goalPurchase">Why do I need it? </label>
+                        <input
+                            name="goalPurchase"
+                            className="u-full-width"
+                            ref={register({ required: true, maxLength: 82 })}
+                        />
+                        {errors.goalPurchase && <span>Use a valid input</span>}
                     </div>
                 </div>
 

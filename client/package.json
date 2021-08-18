@@ -2,12 +2,14 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {    
+  "dependencies": {
+    "bootstrap": "^5.0.2",
     "date-fns": "^2.14.0",
     "drizzle": "^1.4.0",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "react": "^16.8.6",
+    "react-bootstrap": "^2.0.0-beta.4",
     "react-dom": "^16.8.6",
     "react-nice-dates": "^3.0.3",
     "react-router": "^5.2.0",
@@ -37,7 +39,6 @@
     ]
   },
   "devDependencies": {
-    "@openzeppelin/contracts": "^4.2.0",
     "openzeppelin-solidity": "^3.0.1",
     "react-hook-form": "^5.7.2"
   }

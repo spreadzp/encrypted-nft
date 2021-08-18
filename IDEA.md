@@ -17,8 +17,8 @@ https://rinkeby.etherscan.io/address/0x8583360814F7DBD94EdC25cf48Aa782B7e474A42
 
 создать новый контракт marketPlace 0xb6afAeCf903CE7d83d3F511ed3352E4d59960a8C
 
-NFT new 0x017B48535979B015687B26E37c9361145CB19147
-MarketPlace 0xFDDFbd6102F67b4C424254383e228b7CdF968F98
+NFT new 0x8C151518F690a51aC559eB2eA5A4A6e7AFA75F82
+MarketPlace 0xD91f649c4301F9840D2442D3D412C8c014CB0F2A
 
 fix https://i.imgur.com/gVBNu7V.png  without injected web3
 https://www.npmjs.com/package/eth-crypto   use for compress/decompress strings base64

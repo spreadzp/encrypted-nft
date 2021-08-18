@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from "react";
 import TokenCard from "./components/TokenCard";
-import { Link } from "react-router-dom";
-import * as _ from "lodash";
+import { Table, Accordion } from 'react-bootstrap';
 import TransferNFT from "./TransferNFT";
 import { decryptPrivateKey, getPublicKeyViaMetamask, metamaskEncrypt, metamaskEncryptData } from "./metamask";
 import BetForm from "./BetForm";
 import { BigNumber, ethers, utils } from 'ethers'
+import { encryptData } from "./cypher";
 
 const BuyersBoard = props => {
     const [dataKey, setDataKey] = useState(null);
     const [totalAmountNft, setTotalAmountNft] = useState(0);
-    const [nftOwnersDetails, setNftOwnersDetails] = useState([]);
     const [nftBuyersDetails, setNftBuyersDetails] = useState([]);
     const [publicKey, setPubKey] = useState('');
     const [chosenTokenId, setChosenTokenId] = useState(0);
-    const { drizzle, drizzleState } = props;
+    const { drizzle, drizzleState, nftOwnersDetails } = props;
     const contract = drizzle.contracts.EncNft;
     const contractMarket = drizzle.contracts.MarketPlace;
     const [showBetForm, setShowBetForm] = useState(false);
+    const [buyerIndex, setBuyerIndex] = useState(-1);
     useEffect(() => {
         getBuyers();
     }, []);
@@ -49,55 +49,60 @@ const BuyersBoard = props => {
 
 
 
-                if (tokenUri && ownerAddress) {
-                    token.owner = ownerAddress
-                    console.log("🚀 ~ file: BuyersBoard.js ~ line 56 ~ getBuyers ~ tokenUri", tokenUri)
-                    const uri = JSON.parse(tokenUri);
-                    token.name = uri.name;
-                    token.description = uri.description;
-                    token.image = uri.image;
-                    console.log('token :>> ', token);
-                    nftOwnersDetails.length > 0 ? setNftOwnersDetails(nftOwnersDetails => [...nftOwnersDetails, token]) :
-                        setNftOwnersDetails([token])
-                    console.log('####nftOwnersDetails :>> ', nftOwnersDetails);
-                }
+                // if (tokenUri && ownerAddress) {
+                //     token.owner = ownerAddress
+                //     console.log("🚀 ~ file: BuyersBoard.js ~ line 56 ~ getBuyers ~ tokenUri", tokenUri)
+                //     const uri = JSON.parse(tokenUri);
+                //     token.name = uri.name;
+                //     token.description = uri.description;
+                //     token.image = uri.image;
+                //     console.log('token :>> ', token);
+                //     nftOwnersDetails.length > 0 ? setNftOwnersDetails(nftOwnersDetails => [...nftOwnersDetails, token]) :
+                //         setNftOwnersDetails([token])
+                //     console.log('####nftOwnersDetails :>> ', nftOwnersDetails);
+                // }
                 try {
-                      contractMarket.methods.getBuyersrById(token.idNft).call({ from: drizzleState.accounts[0] })
-                      .then(res => console.log('res :>> ', res))
-                    // console.log("🚀 ~ file: BuyersBoard.js ~ line 66 ~ getBuyers ~ countBuyers", countBuyers)
-                    // if(countBuyers) {
-                    //     const buyersMakeBet = await contractMarket.methods.buyersBoard(token.idNft, 0).call({ from: drizzleState.accounts[0] });
-                    //     if (buyersMakeBet) {
-                    //         console.log("🚀 ~ file: BuyersBoard.js ~ line 55 ~ getBuyers ~ buyersMakeBet", buyersMakeBet)
-                    //         setNftBuyersDetails(nftBuyersDetails => [...nftBuyersDetails, [{ buyerAddress: buyersMakeBet[0], buyerPubKey: buyersMakeBet[1], byuerBet: buyersMakeBet[2] }]])
-                    //         console.log('nftBuyersDetails  :>> ', nftBuyersDetails);
-                    //     }
-                    // }                    
-                } catch(error) {
-                console.log("🚀 ~ file: BuyersBoard.js ~ line 72 ~ getBuyers ~ error", error)
-                    
+                    const countBuyers = await contractMarket.methods.getCountBuyers(token.idNft).call({ from: drizzleState.accounts[0] })
+
+                    console.log("🚀 ~ file: BuyersBoard.js ~ line 66 ~ getBuyers ~ countBuyers", countBuyers)
+                    if (countBuyers > 0) {
+                        for (let index = 0; index < countBuyers; index++) {
+                            const buyersMakeBet = await contractMarket.methods.buyersBoard(token.idNft, index).call({ from: drizzleState.accounts[0] });
+                            if (buyersMakeBet) {
+                                console.log("🚀 ~ file: BuyersBoard.js ~ line 55 ~ getBuyers ~ buyersMakeBet", buyersMakeBet)
+                                setNftBuyersDetails(nftBuyersDetails => [...nftBuyersDetails, {idToken: token.idNft, buyerAddress: buyersMakeBet[0], buyerPubKey: buyersMakeBet[1],
+                                     buyerBet: buyersMakeBet[2], goalPurchase: buyersMakeBet[3] }])
+                                console.log('nftBuyersDetails  :>> ', nftBuyersDetails);
+                            }
+                            
+                        }
+                      
+                    }
+                } catch (error) {
+                    console.log("🚀 ~ file: BuyersBoard.js ~ line 72 ~ getBuyers ~ error", error)
+
                 }
-                
+
             })
         }
     };
 
     const sellNft = async (buyer, token) => {
+    console.log("🚀 ~ file: BuyersBoard.js ~ line 85 ~ sellNft ~ buyer", buyer)
         if (token.owner === drizzleState.accounts[0]) {
             // enc-decrypt pryvateKey - enc via buyerPubKey
             const ownerOfTokenInfo = await contract.methods.getTokenInfoLastOwner(token.idNft).call({ from: drizzleState.accounts[0] });
             console.log("🚀 ~ file: BuyersBoard.js ~ line 78 ~ sellNft ~ ownerOfTokenInfo", ownerOfTokenInfo)
             const lastEncryptedPrivateKey = ownerOfTokenInfo.encData
             console.log("🚀 ~ file: BuyersBoard.js ~ line 79 ~ sellNft ~ lastEncryptedPrivateKey", lastEncryptedPrivateKey)
-            const encryptedPrivateKey = await decryptPrivateKey(lastEncryptedPrivateKey, drizzleState.accounts[0])
-            console.log("🚀 ~ file: BuyersBoard.js ~ line 81 ~ sellNft ~ encryptedPrivateKey", encryptedPrivateKey)
-            console.log('buyer.buyerPubKey  :>> ', buyer[0].buyerPubKey, buyer );
-            if (encryptedPrivateKey) {
-                const encData = await metamaskEncrypt(encryptedPrivateKey, buyer[0].buyerPubKey )
+            const decryptedPrivateKey = await decryptPrivateKey(lastEncryptedPrivateKey, drizzleState.accounts[0])
+            console.log("🚀 ~ file: BuyersBoard.js ~ line 81 ~ sellNft ~ encryptedPrivateKey", decryptedPrivateKey)
+            console.log('buyer.buyerPubKey  :>> ', buyer.buyerPubKey, buyer);
+            if (decryptedPrivateKey) {
+                const encData = await metamaskEncrypt(  decryptedPrivateKey, buyer.buyerPubKey)
                 if (encData !== '') {
                     console.log("🚀 ~ file: BuyersBoard.js ~ line 85 ~ sellNft ~ encData", encData)
-                    const sellInfo = await contractMarket.methods.acceptRateAndTransferToken(token.idNft, buyer[0].buyerAddress, encData).send(
-                        { from: drizzleState.accounts[0], gasPrice: 10 * 10 ** 10, gasLimit: 600000 })
+                    const sellInfo = await contractMarket.methods.acceptRateAndTransferToken(token.idNft, buyer.buyerAddress, encData).send({ from: drizzleState.accounts[0], gasPrice: 10 * 10 ** 10, gasLimit: 600000 })
                     console.log("🚀 ~ file: BuyersBoard.js ~ line 65 ~ sellNft ~ sellInfo", sellInfo)
                 }
             }
@@ -106,45 +111,55 @@ const BuyersBoard = props => {
         }
     }
 
-    useEffect(() => {
-        console.log('totalAmountNft  :>> ', totalAmountNft);
-        console.log('nftOwnersDetails.length :>> ', nftOwnersDetails.length);
-        console.log('nftOwnersDetails.length === totalAmountNft :>> ', nftOwnersDetails.length === totalAmountNft);
-        if (nftOwnersDetails.length == totalAmountNft) {
-            console.log(' @@@@totalAmountNft  :>> ', totalAmountNft);
-        }
-    }, [nftOwnersDetails.length])
+const getSellerActions = (buyer, token) => { 
+    return (
+        token.owner === drizzleState.accounts[0] && token.approved ?  
+        token.owner === drizzleState.accounts[0] && !token.approved ? 
+        'Need to approve to sell':   
+        <button onClick={() => sellNft(buyer, token)}>Sell NFT</button > :
+        
+        ''
+    )
+}
+    const BuyersOfToken = (token) => {
+        // own address make color red
+
+        return (< Table striped bordered hover >
+            <thead >
+                <th > Buyer address </th>
+                <th > Buyer rate </th>
+                <th > Why do I need it </th>
+                <th > Action </th>
+            </thead >
+            <tbody > {
+                nftBuyersDetails.filter(item => item.idToken === token.idNft).map(buyer => {
+                    return (buyer.buyerBet > 0 && < tr >
+                        <th className={buyer.buyerAddress === drizzleState.accounts[0]? 'owner-address': null}> {buyer.buyerAddress} </th> <th>{utils.formatEther(buyer.buyerBet)}ETH</th>
+                        <th> {buyer.goalPurchase} </th>
+                        <th>{getSellerActions(buyer, token)} </th>
+                    </tr >)
+                })
+            } </tbody>
+        </Table>)
+    }
 
 
-    const ByersOfToken = (token) =>
-        nftBuyersDetails.map(buyer =>
-            <span><div>{buyer.buyerAddress}{buyer.byuerBet}</div>{token.owner === drizzleState.accounts[0] && <button onClick={() => sellNft(buyer, token)}>Sell NFT</button>}</span>
-        )
 
     return (
         // if it exists, then we display its value
         <>
-            <section>
-                {showBetForm && <BetForm
-                    drizzle={drizzle}
-                    drizzleState={drizzleState}
-                    idToken={chosenTokenId}
-                    pk={publicKey}
-                    address={drizzleState.accounts[0]}
-                />}
-            </section>
-            <section>
-                <h2>Buyers Board</h2>
-                {nftOwnersDetails.length == totalAmountNft ? nftOwnersDetails.map(token => {
-                    return (<><span>{token.idNft}: {token.name} {token.description}
-                        {token.owner !== drizzleState.accounts[0] && <button onClick={() => makeBet(token)}>Make Bet</button>}{ByersOfToken(token)}</span>
-                    </>)
-                }
+            <h2 > Buyers Board </h2>
+            <Accordion defaultActiveKey="0" > {
+                nftOwnersDetails.map((token, index) =>
+                    <Accordion.Item eventKey={index} >
+                        <Accordion.Header onClick={() => setBuyerIndex(index)}> ID NFT: {token.idNft} {token.name} </Accordion.Header>
+                        <Accordion.Body className={buyerIndex === index ? "active" : "inactive"} >
+                            <div > {token.description} </div> {BuyersOfToken(token)}
+                        </Accordion.Body> </Accordion.Item >
+                )
+            }
 
-
-                ) : <> </>}
-
-            </section>
+            </Accordion>
         </>
     );
 };

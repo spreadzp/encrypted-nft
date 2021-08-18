@@ -38,6 +38,7 @@ export async function metamaskEncryptData(message, pubKey) {
     return encryptedMessage
 }
 export async function metamaskEncrypt(message, pubKey) {
+    console.log("🚀 ~ file: metamask.js ~ line 41 ~ metamaskEncrypt ~ pubKey", pubKey)
     console.log(message)
 
     const enc = encrypt(

@@ -45,6 +45,31 @@
                     "internalType": "address",
                     "name": "buyerAddress",
                     "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "bet",
+                    "type": "uint256"
+                }
+            ],
+            "name": "BuyerWithdrewBet",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "idToken",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "buyerAddress",
+                    "type": "address"
                 }
             ],
             "name": "NewOwner",
@@ -92,6 +117,31 @@
                 }
             ],
             "name": "TokenForSell",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "idToken",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "sellerAddress",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "sum",
+                    "type": "uint256"
+                }
+            ],
+            "name": "sellerWithdrewSum",
             "type": "event"
         },
         {
@@ -159,6 +209,11 @@
                     "internalType": "uint256",
                     "name": "buyerBet",
                     "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "goalOfPurchase",
+                    "type": "string"
                 }
             ],
             "stateMutability": "view",
@@ -196,7 +251,7 @@
                     "type": "uint256"
                 }
             ],
-            "name": "getBuyersrById",
+            "name": "getBuyersById",
             "outputs": [
                 {
                     "components": [
@@ -214,11 +269,78 @@
                             "internalType": "uint256",
                             "name": "buyerBet",
                             "type": "uint256"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "goalOfPurchase",
+                            "type": "string"
                         }
                     ],
                     "internalType": "struct MarketPlace.BuyerData[]",
                     "name": "",
                     "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "idToken",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getCountBuyers",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "idToken",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getCountSellers",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                }
+            ],
+            "name": "getOwnerInfo",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "balance",
+                    "type": "string"
                 }
             ],
             "stateMutability": "view",
@@ -300,6 +422,11 @@
                     "internalType": "address",
                     "name": "buyerAddress",
                     "type": "address"
+                },
+                {
+                    "internalType": "string",
+                    "name": "goalPurchase",
+                    "type": "string"
                 }
             ],
             "name": "makeBet",

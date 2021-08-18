@@ -30,7 +30,6 @@
     "wait-on": "^5.0.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.2.0",
     "dotenv": "^8.2.0",
     "eth-crypto": "^2.0.0",
     "eth-sig-util": "^3.0.1",
