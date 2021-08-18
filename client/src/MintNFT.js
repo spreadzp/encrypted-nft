@@ -46,8 +46,10 @@ const MintNFT = props => {
     const approveNft = async () => {
         console.log('countTokens :>> ', countTokens);
         // countTokens ???
-        const res = await contract.methods.approve(drizzle.contracts.MarketPlace.address, countTokens).send({ from: drizzleState.accounts[0],
-             gasPrice: 5 * 10 ** 10, gasLimit: 400000 })
+        const res = await contract.methods.approve(drizzle.contracts.MarketPlace.address, countTokens).send({
+            from: drizzleState.accounts[0],
+            gasPrice: 5 * 10 ** 10, gasLimit: 400000
+        })
         if (res) {
             console.log("🚀 ~ file: MintNFT.js ~ line 45 ~ approveNft ~ res", res)
             getTxStatus()
